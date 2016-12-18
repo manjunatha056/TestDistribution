@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
  * <p>
  * Use this annotation if you want to skip a test based plaform.
  *
- * @author saikrisv
+ * @author Manjunatha P
  */
 @Target(ElementType.METHOD) @Retention(RetentionPolicy.RUNTIME) public @interface SkipIf {
     String platform();

@@ -7,7 +7,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created by saikrisv on 23/06/16.
+ * Created by Manjunatha P on 18/12/16.
  */
 public class ScreenShootScheduler {
     public static void main(String[] args) {

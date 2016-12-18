@@ -3,7 +3,7 @@ package com.video.recorder;
 import java.util.Date;
 
 /**
- * Created by saikrisv on 23/06/16.
+ * Created by Manjunatha P on 18/12/16.
  */
 public class Tasker implements Runnable {
 
