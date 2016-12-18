@@ -1,0 +1,15 @@
+.DS_Store
+src/test/java/output/
+.idea
+.gradle
+build/*
+allure-report/*
+test-output/*
+target/*
+report.json
+testng.xml
+*.json
+*.html
+*.iml
+/target/
+image/*
