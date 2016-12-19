@@ -2,7 +2,6 @@ package com.appium.manager;
 
 import com.appium.ios.IOSDeviceConfiguration;
 import com.appium.utils.ImageUtils;
-import com.relevantcodes.extentreports.ExtentTest;
 import com.values.Description;
 import com.values.SkipIf;
 import io.appium.java_client.AppiumDriver;
@@ -91,15 +90,13 @@ public class AppiumParallelTest extends TestListenerAdapter implements ITestList
     public PrintWriter log_file_writer;
     public DesiredCapabilities capabilities = new DesiredCapabilities();
     public String category = null;
-    public ExtentTest parent;
-    public ExtentTest child;
+
     public String deviceModel;
     public File scrFile = null;
     public String testDescription = "";
     public ImageUtils imageUtils = new ImageUtils();
     String screenShotNameWithTimeStamp;
     private String CI_BASE_URI = null;
-    private Map<Long, ExtentTest> parentContext = new HashMap<Long, ExtentTest>();
 
     public static synchronized String getNextAvailableDeviceId() {
         ConcurrentHashMap.KeySetView<String, Boolean> devices = deviceMapping.keySet();
