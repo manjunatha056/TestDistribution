@@ -12,21 +12,21 @@ import java.io.IOException;
 
 public class TestWriteUtils {
     static final Gson GSON = new GsonBuilder() //
-        .registerTypeAdapter(File.class, new TypeAdapter<File>() {
-            @Override public void write(JsonWriter jsonWriter, File file) throws IOException {
-                if (file == null) {
-                    jsonWriter.nullValue();
-                } else {
-                    jsonWriter.value(file.getAbsolutePath());
+            .registerTypeAdapter(File.class, new TypeAdapter<File>() {
+                @Override public void write(JsonWriter jsonWriter, File file) throws IOException {
+                    if (file == null) {
+                        jsonWriter.nullValue();
+                    } else {
+                        jsonWriter.value(file.getAbsolutePath());
+                    }
                 }
-            }
 
-            @Override public File read(JsonReader jsonReader) throws IOException {
-                return new File(jsonReader.nextString());
-            }
-        }) //
-        .enableComplexMapKeySerialization() //
-        .setPrettyPrinting() //
-        .create();
+                @Override public File read(JsonReader jsonReader) throws IOException {
+                    return new File(jsonReader.nextString());
+                }
+            }) //
+            .enableComplexMapKeySerialization() //
+            .setPrettyPrinting() //
+            .create();
 
 }

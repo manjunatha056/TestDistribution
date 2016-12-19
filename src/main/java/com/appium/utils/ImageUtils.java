@@ -22,14 +22,14 @@ import java.util.List;
 import static com.appium.utils.TestWriteUtils.GSON;
 
 /**
- * Created by saikrisv on 17/03/16.
+ * Created by Manjunatha P on 17/03/16.
  */
 public class ImageUtils {
 
 
 
     public void wrapDeviceFrames(String deviceFrame, String deviceScreenToBeFramed,
-        String framedDeviceScreen) throws InterruptedException, IOException, IM4JavaException {
+                                 String framedDeviceScreen) throws InterruptedException, IOException, IM4JavaException {
         IMOperation op = new IMOperation();
         op.addImage(deviceFrame);
         op.addImage(deviceScreenToBeFramed);
@@ -79,12 +79,12 @@ public class ImageUtils {
                                     List<String> screenShotList = new ArrayList<String>();
                                     for (File sFile : sList) {
                                         if (sFile.isFile() && sFile.getCanonicalPath()
-                                            .contains("result")) {
+                                                .contains("result")) {
                                             screenShotList.add(sFile.getCanonicalPath());
                                             //Set the Name and Model
                                             testResult.setDeviceName(sFile.getName().split("_")[0]);
                                             testResult
-                                                .setDeviceModel(sFile.getName().split("_")[1]);
+                                                    .setDeviceModel(sFile.getName().split("_")[1]);
 
                                         } else if (sFile.getCanonicalPath().contains(".gif")) {
                                             testMethod.setGifPath(sFile.getCanonicalPath());
@@ -127,9 +127,9 @@ public class ImageUtils {
         File dir = new File(System.getProperty("user.dir") + "/target/screenshot/");
 
         System.out.println("Getting all files in " + dir.getCanonicalPath()
-            + " including those in subdirectories");
+                + " including those in subdirectories");
         List<File> files =
-            (List<File>) FileUtils.listFiles(dir, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
+                (List<File>) FileUtils.listFiles(dir, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
 
         JsonArray mainObj = new JsonArray();
 
@@ -162,7 +162,7 @@ public class ImageUtils {
     }
 
     public static void createAnimatedGif(List<File> testScreenshots, File animatedGif)
-        throws IOException {
+            throws IOException {
         AnimatedGifEncoder encoder = new AnimatedGifEncoder();
         encoder.start(animatedGif.getAbsolutePath());
         encoder.setDelay(1500 /* 1.5 seconds */);
@@ -201,16 +201,16 @@ public class ImageUtils {
             } else {
                 System.out.println("File: " + file.getName());
                 int length = stringContainsItemFromList("results",
-                    Arrays.asList(file.getParentFile().list()));
+                        Arrays.asList(file.getParentFile().list()));
                 if (file.getName().contains("results")) {
                     gifDevices.add(file);
                     imageAdded++;
                     if (imageAdded == length) {
                         System.out.println("Create Gif");
                         String GifFileName =
-                            file.getParent().substring(file.getParent().lastIndexOf("/") + 1);
+                                file.getParent().substring(file.getParent().lastIndexOf("/") + 1);
                         createAnimatedGif(gifDevices,
-                            new File(file.getParent() + "/" + GifFileName + ".gif"));
+                                new File(file.getParent() + "/" + GifFileName + ".gif"));
                     }
                 }
 
@@ -228,4 +228,3 @@ public class ImageUtils {
         return j;
     }
 }
-

@@ -1,30 +1,37 @@
 package com.appium.ios;
 
+import com.appium.manager.ConfigurationManager;
 import com.appium.manager.GeneratePorts;
 import com.appium.utils.CommandPrompt;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class IOSDeviceConfiguration {
     public static ArrayList<String> deviceUDIDiOS = new ArrayList<String>();
+    private final ConfigurationManager prop;
     CommandPrompt commandPrompt = new CommandPrompt();
     GeneratePorts ap = new GeneratePorts();
     public HashMap<String, String> deviceMap = new HashMap<String, String>();
     Map<String, String> devices = new HashMap<>();
     public Process p;
     public Process p1;
-    public Properties prop = new Properties();
-    public InputStream input = null;
 
     public final static int IOS_UDID_LENGTH = 40;
 
     public static ConcurrentHashMap<Long, Integer> appiumServerProcess = new ConcurrentHashMap<>();
+
+
+    public IOSDeviceConfiguration() throws IOException {
+        prop = ConfigurationManager.getInstance();
+    }
 
     public void checkIfiDeviceApiIsInstalled() throws InterruptedException, IOException {
         boolean checkMobileDevice =
@@ -137,19 +144,15 @@ public class IOSDeviceConfiguration {
         return deviceName;
     }
 
+    public String getIOSDeviceProductVersion(String udid) throws InterruptedException, IOException {
+        return commandPrompt
+                .runCommandThruProcessBuilder("ideviceinfo --udid " + udid
+                        + " | grep ProductVersion");
+    }
+
     public boolean checkiOSDevice(String UDID) throws Exception {
-        try {
-            String getIOSDeviceID = commandPrompt.runCommand("idevice_id --list");
-            boolean checkDeviceExists = getIOSDeviceID.contains(UDID);
-            if (checkDeviceExists) {
-                return true;
-            } else {
-                return false;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+        String getIOSDeviceID = commandPrompt.runCommand("idevice_id --list");
+        return getIOSDeviceID.contains(UDID);
     }
 
     public HashMap<String, String> setIOSWebKitProxyPorts(String device_udid) throws Exception {
@@ -163,8 +166,6 @@ public class IOSDeviceConfiguration {
     }
 
     public String startIOSWebKit(String udid) throws IOException, InterruptedException {
-        input = new FileInputStream("config.properties");
-        prop.load(input);
         String serverPath = prop.getProperty("APPIUM_JS_PATH");
         File file = new File(serverPath);
         File curentPath = new File(file.getParent());
@@ -230,8 +231,6 @@ public class IOSDeviceConfiguration {
     }
 
     public void checkExecutePermissionForIOSDebugProxyLauncher() throws IOException {
-        input = new FileInputStream("config.properties");
-        prop.load(input);
         String serverPath = prop.getProperty("APPIUM_JS_PATH");
         File file = new File(serverPath);
         File curentPath = new File(file.getParent());

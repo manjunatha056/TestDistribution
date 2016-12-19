@@ -5,49 +5,47 @@ import com.appium.ios.IOSDeviceConfiguration;
 import com.github.lalyos.jfiglet.FigletFont;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /*
  * This class picks the devices connected
  * and distributes across multiple thread.
+ *
  */
 
 
 public class ParallelThread {
+    private final ConfigurationManager configurationManager;
     protected int deviceCount = 0;
     Map<String, String> devices = new HashMap<String, String>();
     Map<String, String> iOSdevices = new HashMap<String, String>();
     private AndroidDeviceConfiguration deviceConf = new AndroidDeviceConfiguration();
     private IOSDeviceConfiguration iosDevice = new IOSDeviceConfiguration();
     private MyTestExecutor myTestExecutor = new MyTestExecutor();
-    public Properties prop = new Properties();
-    public InputStream input = null;
     List<Class> testcases;
 
     public ParallelThread() throws IOException {
-        input = new FileInputStream("config.properties");
-        prop.load(input);
+        configurationManager = ConfigurationManager.getInstance();
     }
 
-    public void runner(String pack, List<String> tests) throws Exception {
-        figlet(prop.getProperty("RUNNER"));
-        triggerTest(pack, tests);
+    public boolean runner(String pack, List<String> tests) throws Exception {
+        figlet(configurationManager.getProperty("RUNNER"));
+        return triggerTest(pack, tests);
     }
 
-    public void runner(String pack) throws Exception {
-        figlet(prop.getProperty("RUNNER"));
-        List<String> test = new ArrayList<>();
-        triggerTest(pack, test);
+    public boolean runner(String pack) throws Exception {
+        return runner(pack, new ArrayList<String>());
     }
 
-    public void triggerTest(String pack, List<String> tests) throws Exception {
-        parallelExecution(pack, tests);
+    public boolean triggerTest(String pack, List<String> tests) throws Exception {
+        return parallelExecution(pack, tests);
     }
 
-    public void parallelExecution(String pack, List<String> tests) throws Exception {
+    public boolean parallelExecution(String pack, List<String> tests) throws Exception {
         String operSys = System.getProperty("os.name").toLowerCase();
         File f = new File(System.getProperty("user.dir") + "/target/appiumlogs/");
         if (!f.exists()) {
@@ -61,7 +59,7 @@ public class ParallelThread {
             }
         }
 
-        if (prop.getProperty("ANDROID_APP_PATH") != null && deviceConf.getDevices() != null) {
+        if (configurationManager.getProperty("ANDROID_APP_PATH") != null && deviceConf.getDevices() != null) {
             devices = deviceConf.getDevices();
             deviceCount = devices.size() / 4;
             File adb_logs = new File(System.getProperty("user.dir") + "/target/adblogs/");
@@ -79,12 +77,15 @@ public class ParallelThread {
         }
 
         if (operSys.contains("mac")) {
-            if (iosDevice.getIOSUDID() != null) {
-                iosDevice.checkExecutePermissionForIOSDebugProxyLauncher();
-                iOSdevices = iosDevice.getIOSUDIDHash();
-                deviceCount += iOSdevices.size();
-                createSnapshotFolderiOS(deviceCount, "iPhone");
+            if (configurationManager.getProperty("IOS_APP_PATH") != null ) {
+                if (iosDevice.getIOSUDID() != null) {
+                    iosDevice.checkExecutePermissionForIOSDebugProxyLauncher();
+                    iOSdevices = iosDevice.getIOSUDIDHash();
+                    deviceCount += iOSdevices.size();
+                    createSnapshotFolderiOS(deviceCount, "iPhone");
+                }
             }
+
 
         }
         if (deviceCount == 0) {
@@ -98,7 +99,8 @@ public class ParallelThread {
 
         testcases = new ArrayList<Class>();
 
-        if (prop.getProperty("FRAMEWORK").equalsIgnoreCase("testng")) {
+        boolean hasFailures = false;
+        if (configurationManager.getProperty("FRAMEWORK").equalsIgnoreCase("testng")) {
             // final String pack = "com.paralle.tests"; // Or any other package
             PackageUtil.getClasses(pack).stream().forEach(s -> {
                 if (s.toString().contains("Test")) {
@@ -106,19 +108,33 @@ public class ParallelThread {
                 }
             });
 
-            if (prop.getProperty("RUNNER").equalsIgnoreCase("distribute")) {
-                myTestExecutor
-                    .runMethodParallelAppium(tests, pack, deviceCount,
-                        "distribute");
+            if (configurationManager.getProperty("RUNNER").equalsIgnoreCase("distribute")) {
+                hasFailures = myTestExecutor
+                        .runMethodParallelAppium(tests, pack, deviceCount,
+                                "distribute");
 
             }
-            if (prop.getProperty("RUNNER").equalsIgnoreCase("parallel")) {
-                myTestExecutor
-                    .runMethodParallelAppium(tests, pack, deviceCount,
-                        "parallel");
+            if (configurationManager.getProperty("RUNNER").equalsIgnoreCase("parallel")) {
+                hasFailures = myTestExecutor
+                        .runMethodParallelAppium(tests, pack, deviceCount,
+                                "parallel");
             }
         }
 
+        if (configurationManager.getProperty("FRAMEWORK").equalsIgnoreCase("cucumber")) {
+            //addPluginToCucumberRunner();
+            if (configurationManager.getProperty("RUNNER").equalsIgnoreCase("distribute")) {
+                hasFailures = myTestExecutor.runMethodParallel(myTestExecutor
+                        .constructXmlSuiteDistributeCucumber(deviceCount,
+                                AppiumParallelTest.devices));
+            } else if (configurationManager.getProperty("RUNNER").equalsIgnoreCase("parallel")) {
+                //addPluginToCucumberRunner();
+                hasFailures = myTestExecutor.runMethodParallel(myTestExecutor
+                        .constructXmlSuiteForParallelCucumber(deviceCount,
+                                AppiumParallelTest.devices));
+            }
+        }
+        return hasFailures;
     }
 
     public void createSnapshotFolderAndroid(int deviceCount, String platform) throws Exception {
@@ -127,8 +143,8 @@ public class ParallelThread {
             if (deviceSerial != null) {
                 createPlatformDirectory(platform);
                 File file = new File(
-                    System.getProperty("user.dir") + "/target/screenshot/" + platform + "/"
-                        + deviceSerial.replaceAll("\\W", "_"));
+                        System.getProperty("user.dir") + "/target/screenshot/" + platform + "/"
+                                + deviceSerial.replaceAll("\\W", "_"));
                 if (!file.exists()) {
                     if (file.mkdir()) {
                         System.out.println("Android " + deviceSerial + " Directory is created!");
@@ -145,8 +161,8 @@ public class ParallelThread {
             String deviceSerial = iOSdevices.get("deviceID" + i);
             createPlatformDirectory(platform);
             File file = new File(
-                System.getProperty("user.dir") + "/target/screenshot/" + platform + "/"
-                    + deviceSerial);
+                    System.getProperty("user.dir") + "/target/screenshot/" + platform + "/"
+                            + deviceSerial);
             if (!file.exists()) {
                 if (file.mkdir()) {
                     System.out.println("IOS " + deviceSerial + " Directory is created!");

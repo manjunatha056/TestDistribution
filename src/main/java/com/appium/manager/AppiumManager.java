@@ -8,10 +8,8 @@ import io.appium.java_client.service.local.flags.GeneralServerFlag;
 import io.appium.java_client.service.local.flags.ServerArgument;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
+import java.io.IOException;
 import java.net.URL;
-import java.util.Properties;
 
 /**
  * Appium Manager - this class contains method to start and stops appium server
@@ -23,9 +21,13 @@ public class AppiumManager {
     private CommandPrompt cp = new CommandPrompt();
     private GeneratePorts ap = new GeneratePorts();
     public AppiumDriverLocalService appiumDriverLocalService;
-    public Properties prop = new Properties();
-    public InputStream input = null;
     public AppiumServiceBuilder builder = new AppiumServiceBuilder();
+    private ConfigurationManager prop;
+
+
+    AppiumManager() throws IOException {
+        prop = ConfigurationManager.getInstance();
+    }
 
     /**
      * start appium with auto generated ports : appium port, chrome port,
@@ -33,30 +35,29 @@ public class AppiumManager {
      */
 
     public AppiumServiceBuilder appiumServerForAndroid(String deviceID, String methodName)
-        throws Exception {
+            throws Exception {
         System.out.println(
-            "**************************************************************************\n");
+                "**************************************************************************\n");
         System.out.println("Starting Appium Server to handle Android Device::" + deviceID + "\n");
         System.out.println(
-            "**************************************************************************\n");
-        input = new FileInputStream("config.properties");
-        prop.load(input);
+                "**************************************************************************\n");
         int port = ap.getPort();
         int chromePort = ap.getPort();
         int bootstrapPort = ap.getPort();
         int selendroidPort = ap.getPort();
         AppiumServiceBuilder builder =
-            new AppiumServiceBuilder().withIPAddress("127.0.0.1")
-                .withArgument(GeneralServerFlag.LOG_LEVEL, "info")/*.withLogFile(new File(
-                System.getProperty("user.dir") + "/target/appiumlogs/" + deviceID
-                    .replaceAll("\\W", "_") + "__" + methodName + ".txt"))*/
-                .withArgument(AndroidServerFlag.CHROME_DRIVER_PORT, Integer.toString(chromePort))
-                .withArgument(AndroidServerFlag.BOOTSTRAP_PORT_NUMBER,
-                    Integer.toString(bootstrapPort))
-                .withArgument(GeneralServerFlag.SESSION_OVERRIDE)
-                .withArgument(AndroidServerFlag.SUPPRESS_ADB_KILL_SERVER)
-                .withArgument(AndroidServerFlag.SELENDROID_PORT, Integer.toString(selendroidPort))
-                .usingPort(port);
+                new AppiumServiceBuilder().withAppiumJS(new File(prop.getProperty("APPIUM_JS_PATH")))
+                        .withArgument(GeneralServerFlag.LOG_LEVEL, "info").withLogFile(new File(
+                        System.getProperty("user.dir") + "/target/appiumlogs/" + deviceID
+                                .replaceAll("\\W", "_") + "__" + methodName + ".txt"))
+                        .withArgument(AndroidServerFlag.CHROME_DRIVER_PORT, Integer.toString(chromePort))
+                        .withArgument(AndroidServerFlag.BOOTSTRAP_PORT_NUMBER,
+                                Integer.toString(bootstrapPort))
+                        .withIPAddress("127.0.0.1")
+                        .withArgument(GeneralServerFlag.SESSION_OVERRIDE)
+                        .withArgument(AndroidServerFlag.SUPPRESS_ADB_KILL_SERVER)
+                        .withArgument(AndroidServerFlag.SELENDROID_PORT, Integer.toString(selendroidPort))
+                        .usingPort(port);
         /* and so on */
         ;
         appiumDriverLocalService = builder.build();
@@ -76,26 +77,25 @@ public class AppiumManager {
     };
 
     public AppiumServiceBuilder appiumServerForIOS(String deviceID, String methodName,
-        String webKitPort) throws Exception {
+                                                   String webKitPort) throws Exception {
         System.out
-            .println("**********************************************************************\n");
+                .println("**********************************************************************\n");
         System.out.println("Starting Appium Server to handle IOS::" + deviceID + "\n");
         System.out
-            .println("**********************************************************************\n");
+                .println("**********************************************************************\n");
         File classPathRoot = new File(System.getProperty("user.dir"));
-        input = new FileInputStream("config.properties");
-        prop.load(input);
         int port = ap.getPort();
         AppiumServiceBuilder builder =
-            new AppiumServiceBuilder().withAppiumJS(new File(prop.getProperty("APPIUM_JS_PATH")))
-                .withArgument(GeneralServerFlag.LOG_LEVEL, "info").withLogFile(new File(
-                System.getProperty("user.dir") + "/target/appiumlogs/" + deviceID
-                    .replaceAll("\\W", "_") + "__" + methodName + ".txt"))
-                .withArgument(webKitProxy, webKitPort)
-                .withArgument(GeneralServerFlag.LOG_LEVEL, "debug")
-                .withArgument(GeneralServerFlag.TEMP_DIRECTORY,
-                    new File(String.valueOf(classPathRoot)).getAbsolutePath() + "/target/" + "tmp_"
-                        + port).withArgument(GeneralServerFlag.SESSION_OVERRIDE).usingPort(port);
+                new AppiumServiceBuilder().withAppiumJS(new File(prop.getProperty("APPIUM_JS_PATH")))
+                        .withArgument(GeneralServerFlag.LOG_LEVEL, "info").withLogFile(new File(
+                        System.getProperty("user.dir") + "/target/appiumlogs/" + deviceID
+                                .replaceAll("\\W", "_") + "__" + methodName + ".txt"))
+                        .withArgument(webKitProxy, webKitPort)
+                        .withIPAddress("127.0.0.1")
+                        .withArgument(GeneralServerFlag.LOG_LEVEL, "debug")
+                        .withArgument(GeneralServerFlag.TEMP_DIRECTORY,
+                                new File(String.valueOf(classPathRoot)).getAbsolutePath() + "/target/" + "tmp_"
+                                        + port).withArgument(GeneralServerFlag.SESSION_OVERRIDE).usingPort(port);
         appiumDriverLocalService = builder.build();
         appiumDriverLocalService.start();
         return builder;
@@ -112,16 +112,5 @@ public class AppiumManager {
             System.out.println("AppiumServer didn't shut... Trying to quit again....");
             appiumDriverLocalService.stop();
         }
-    }
-
-
-    public static void main(String args[]) throws Exception {
-        AppiumManager manager=new AppiumManager();
-        manager.appiumServerForAndroid("0bb3a6af036aa567","manju");
-        System.out.println(manager.getAppiumUrl().toString());
-        manager.destroyAppiumNode();
-        manager.appiumServerForAndroid("4df15b182d95aff9","manju1");
-        System.out.println(manager.getAppiumUrl().toString());
-        manager.destroyAppiumNode();
     }
 }

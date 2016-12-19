@@ -1,8 +1,5 @@
 package com.appium.utils;
 
-/**
- * Command Prompt to get devices
- */
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,7 +33,7 @@ public class CommandPrompt {
     }
 
     public String runCommandThruProcessBuilder(String command)
-        throws InterruptedException, IOException {
+            throws InterruptedException, IOException {
         BufferedReader br = getBufferedReader(command);
         String line;
         String allLine = "";
@@ -48,7 +45,7 @@ public class CommandPrompt {
     }
 
     public String runProcessCommandToGetDeviceID(String command)
-        throws InterruptedException, IOException {
+            throws InterruptedException, IOException {
         BufferedReader br = getBufferedReader(command);
         String line;
         String allLine = "";
@@ -74,7 +71,7 @@ public class CommandPrompt {
     }
 
     public void runCommandThruProcess(String command)
-        throws InterruptedException, IOException {
+            throws InterruptedException, IOException {
         BufferedReader br = getBufferedReader(command);
         String line;
         String allLine = "";
