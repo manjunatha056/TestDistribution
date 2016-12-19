@@ -46,7 +46,7 @@ public class AppiumManager {
         int bootstrapPort = ap.getPort();
         int selendroidPort = ap.getPort();
         AppiumServiceBuilder builder =
-            new AppiumServiceBuilder()/*.withIPAddress("127.0.0.1")*/
+            new AppiumServiceBuilder().withIPAddress("127.0.0.1")
                 .withArgument(GeneralServerFlag.LOG_LEVEL, "info")/*.withLogFile(new File(
                 System.getProperty("user.dir") + "/target/appiumlogs/" + deviceID
                     .replaceAll("\\W", "_") + "__" + methodName + ".txt"))*/
