@@ -2,7 +2,6 @@
 src/test/java/output/
 .idea
 .gradle
-build/*
 allure-report/*
 test-output/*
 target/*
