@@ -1,6 +1,5 @@
 package com.appium.manager;
 
-import com.appium.utils.CommandPrompt;
 import io.appium.java_client.service.local.AppiumDriverLocalService;
 import io.appium.java_client.service.local.AppiumServiceBuilder;
 import io.appium.java_client.service.local.flags.AndroidServerFlag;
@@ -18,10 +17,10 @@ import java.net.URL;
  */
 public class AppiumManager {
 
-    private CommandPrompt cp = new CommandPrompt();
+   // private CommandPrompt cp = new CommandPrompt();
     private GeneratePorts ap = new GeneratePorts();
     public AppiumDriverLocalService appiumDriverLocalService;
-    public AppiumServiceBuilder builder = new AppiumServiceBuilder();
+  //  public AppiumServiceBuilder builder = new AppiumServiceBuilder();
     private ConfigurationManager prop;
 
 

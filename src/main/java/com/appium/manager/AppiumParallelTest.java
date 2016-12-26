@@ -481,7 +481,7 @@ public class AppiumParallelTest extends TestListenerAdapter implements ITestList
         System.out.println("Setting Android Desired Capabilities:");
         DesiredCapabilities androidCapabilities = new DesiredCapabilities();
         androidCapabilities.setCapability(MobileCapabilityType.DEVICE_NAME, "Android");
-        androidCapabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, "5.X");
+        //androidCapabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, "5.X");
         androidCapabilities.setCapability(AndroidMobileCapabilityType.APP_ACTIVITY,
                 prop.getProperty("APP_ACTIVITY"));
         androidCapabilities.setCapability(AndroidMobileCapabilityType.APP_PACKAGE,
